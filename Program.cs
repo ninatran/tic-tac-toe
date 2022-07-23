@@ -14,7 +14,8 @@
             }
         }
 
-        static void NextMove(String[][] board, String token){
+        static void NextMove(String[][] board, String token)
+        {
             // Prompt Player 
             Console.WriteLine($"Player {token}, Make your move by entering a number");
             var input = Console.ReadLine();
@@ -22,25 +23,30 @@
             // Place token once valid move is made
             bool validMove = false;
             if(input is not null)
+            {
                 validMove = PlaceToken(board, input, token);
-
+                PrintBoard(board);
+            }
             while(!validMove)
             {
                 Console.WriteLine("Invalid move. Try again.");
                 input = Console.ReadLine();
                 if(input is not null)
+                {
                     validMove = PlaceToken(board, input, token);
+                    PrintBoard(board);
+                }
             }
         }
 
-        static bool PlaceToken(String[][] board, String input, String token){
+        static bool PlaceToken(String[][] board, String input, String token)
+        {
             for(int row = 0; row < 3; row++)
             {
                 for(int col = 0; col < 3; col++){
                     if(board[row][col] == input)
                     {
                         board[row][col] = token;
-                        PrintBoard(board);
                         return true;
                     }
                 }
@@ -69,12 +75,37 @@
                 return false;
         }
 
-        static String SwitchCurrentPlayer(String token){
+        static String SwitchCurrentPlayer(String token)
+        {
             return String.Equals(token, "X") ? "O" : "X";
         }
+
+        static bool PlayAgain()
+        {
+            Console.WriteLine("Would you like to play again? (Y/N)");
+            var input = Console.ReadLine();
+            if(input is not null)
+            {
+                bool validInput = input is not null && (String.Equals(input.ToUpper(),"Y") || String.Equals(input.ToUpper(),"N")) ? true : false;
+                while(!validInput)
+                {
+                    Console.WriteLine("Invalid choice. Enter Y to play again or N to exit the program.");
+                    input = Console.ReadLine();
+                    validInput = input is not null && (String.Equals(input.ToUpper(),"Y") || String.Equals(input.ToUpper(),"N")) ? true : false;
+                }
+                if(input is not null && String.Equals(input.ToUpper(),"Y")) return true;
+                else return false;
+            }
+            else 
+            {   
+                Console.WriteLine("Null input Error. The program will now exit.");
+                Environment.Exit(0);
+                return false; 
+            }
+        }
        
-        static void Main(string[] args)
-        {   
+       static bool NewGame()
+       {
             // Create new Board
             String[][] board = 
             {
@@ -99,13 +130,16 @@
 
             // Check for win
             bool winState = CheckForWin(board);
+            
+            // Let users take turns until board is filled or someone wins
             while(turnsElapsed < 9)
             {
                 if(winState)
                 {
                     currentPlayer = SwitchCurrentPlayer(currentPlayer);
                     Console.WriteLine($"Player {currentPlayer} wins!");
-                    Environment.Exit(0);
+                    // Ask if the user wants to play again
+                    return PlayAgain();
                 }
                 else
                 {
@@ -118,6 +152,20 @@
             }
 
             Console.WriteLine("It's a Tie");
+
+            // Ask if the user wants to play again
+            return PlayAgain();
+
+       }
+        
+        static void Main(string[] args)
+        {   
+            bool startNewGame = true;
+            while( startNewGame )
+            {
+                startNewGame = NewGame();
+            }
+            Console.WriteLine("Thanks for playing!");
             Environment.Exit(0);
         }
     }
