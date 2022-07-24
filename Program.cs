@@ -4,6 +4,7 @@
     {
         static void PrintBoard(String[][] board)
         {
+            Console.Clear();
             Console.WriteLine("\n");
             for(int row = 0; row < 3; row++){
                 Console.Write("| ");
@@ -16,11 +17,11 @@
 
         static void NextMove(String[][] board, String token)
         {
-            // Prompt Player 
-            Console.WriteLine($"Player {token}, Make your move by entering a number");
+            // Prompt current player to move
+            Console.WriteLine($"\nPlayer {token}, Make your move by entering a number");
             var input = Console.ReadLine();
 
-            // Place token once valid move is made
+            // Place token if valid move selected and print board
             bool validMove = false;
             if(input is not null)
             {
@@ -41,6 +42,7 @@
 
         static bool PlaceToken(String[][] board, String input, String token)
         {
+            // Validate move and place token. Return false if invalid move.
             for(int row = 0; row < 3; row++)
             {
                 for(int col = 0; col < 3; col++){
@@ -82,7 +84,7 @@
 
         static bool PlayAgain()
         {
-            Console.WriteLine("Would you like to play again? (Y/N)");
+            Console.WriteLine("\nWould you like to play again? Y/N");
             var input = Console.ReadLine();
             if(input is not null)
             {
@@ -104,7 +106,13 @@
             }
         }
        
-       static bool NewGame()
+        static void IncrementScore(Dictionary<String, int> scores, String result){
+            int count;
+            scores.TryGetValue(result, out count);
+            scores[result] = count + 1;
+        }
+       
+       static bool NewGame(Dictionary<String, int> scores)
        {
             // Create new Board
             String[][] board = 
@@ -137,6 +145,7 @@
                 if(winState)
                 {
                     currentPlayer = SwitchCurrentPlayer(currentPlayer);
+                    IncrementScore(scores, currentPlayer);
                     Console.WriteLine($"Player {currentPlayer} wins!");
                     // Ask if the user wants to play again
                     return PlayAgain();
@@ -151,7 +160,8 @@
 
             }
 
-            Console.WriteLine("It's a Tie");
+            Console.WriteLine("It's a Draw!");
+            IncrementScore(scores, "Draw");
 
             // Ask if the user wants to play again
             return PlayAgain();
@@ -159,13 +169,22 @@
        }
         
         static void Main(string[] args)
-        {   
+        {  
             bool startNewGame = true;
+
+            Dictionary<string, int> scores = new Dictionary<string, int>();
+            scores.Add("X", 0);
+            scores.Add("O", 0);
+            scores.Add("Draw", 0);
+
             while( startNewGame )
             {
-                startNewGame = NewGame();
+                startNewGame = NewGame(scores);
             }
-            Console.WriteLine("Thanks for playing!");
+
+            Console.Clear();
+            Console.WriteLine("\nX wins: {0} | O wins: {1} | Draw: {2}", scores["X"], scores["O"], scores["Draw"]);
+            Console.WriteLine("\nThanks for playing!");
             Environment.Exit(0);
         }
     }
