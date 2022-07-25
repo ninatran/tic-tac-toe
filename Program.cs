@@ -2,6 +2,58 @@
 {
     class Program
     {
+        static bool NewGame(Dictionary<String, int> scores)
+       {    
+            // Play one game of Tic-Tac-Toe and returns true if user wants to play again
+            int turnsElapsed = 0;
+            String currentPlayer = "X";
+
+            // Create new Board
+            String[][] board = 
+            {
+                new String[] {"1", "2", "3"},
+                new String[] {"4", "5", "6"},
+                new String[] {"7", "8", "9"}
+            };
+
+            PrintBoard(board);
+
+            // Let players make five turns before checking for possible win
+            for(int turn = 0; turn < 5; turn++)
+            {
+                GetNextMove(board, currentPlayer);
+                currentPlayer = SwitchCurrentPlayer(currentPlayer);
+                turnsElapsed++;
+            }
+
+            bool winState = CheckForWin(board);
+            
+            // Let users take turns until board is filled or someone wins
+            while(turnsElapsed < 9)
+            {
+                if(winState)
+                {
+                    currentPlayer = SwitchCurrentPlayer(currentPlayer);
+                    Console.WriteLine($"Player {currentPlayer} wins!");
+                    IncrementScore(scores, currentPlayer);
+                    // Prompt user to play again
+                    return PlayAgain();
+                }
+                else
+                {
+                    GetNextMove(board, currentPlayer);
+                    currentPlayer = SwitchCurrentPlayer(currentPlayer);
+                    turnsElapsed++;
+                    winState = CheckForWin(board);
+                }
+            }
+
+            // Display result for a draw
+            Console.WriteLine("It's a Draw!");
+            IncrementScore(scores, "Draw");
+            return PlayAgain();
+       }
+        
         static void PrintBoard(String[][] board)
         {
             Console.Clear();
@@ -15,13 +67,13 @@
             }
         }
 
-        static void NextMove(String[][] board, String token)
+        static void GetNextMove(String[][] board, String token)
         {
-            // Prompt current player to move
+            // Prompt current player to make move
             Console.WriteLine($"\nPlayer {token}, Make your move by entering a number");
             var input = Console.ReadLine();
 
-            // Place token if valid move selected and print board
+            // Place token if valid move is entered and print board
             bool validMove = false;
             if(input is not null)
             {
@@ -42,7 +94,7 @@
 
         static bool PlaceToken(String[][] board, String input, String token)
         {
-            // Validate move and place token. Return false if invalid move.
+            // Validate move and place token. Return false if move is invalid.
             for(int row = 0; row < 3; row++)
             {
                 for(int col = 0; col < 3; col++){
@@ -54,6 +106,11 @@
                 }
             }
             return false;
+        }
+
+        static String SwitchCurrentPlayer(String token)
+        {
+            return String.Equals(token, "X") ? "O" : "X";
         }
 
         static bool CheckForWin(String[][] board)
@@ -77,13 +134,15 @@
                 return false;
         }
 
-        static String SwitchCurrentPlayer(String token)
-        {
-            return String.Equals(token, "X") ? "O" : "X";
+        static void IncrementScore(Dictionary<String, int> scores, String result){
+            int count;
+            scores.TryGetValue(result, out count);
+            scores[result] = count + 1;
         }
 
         static bool PlayAgain()
         {
+            // Ask the user if they would like to play again
             Console.WriteLine("\nWould you like to play again? Y/N");
             var input = Console.ReadLine();
             if(input is not null)
@@ -105,85 +164,27 @@
                 return false; 
             }
         }
-       
-        static void IncrementScore(Dictionary<String, int> scores, String result){
-            int count;
-            scores.TryGetValue(result, out count);
-            scores[result] = count + 1;
-        }
-       
-       static bool NewGame(Dictionary<String, int> scores)
-       {
-            // Create new Board
-            String[][] board = 
-            {
-                new String[] {"1", "2", "3"},
-                new String[] {"4", "5", "6"},
-                new String[] {"7", "8", "9"}
-            };
-
-            int turnsElapsed = 0;
-            var currentPlayer = "X";
-
-            // Print board
-            PrintBoard(board);
-
-            // Let players make five turns before checking for possible win
-            for(int turn = 0; turn < 5; turn++)
-            {
-                NextMove(board, currentPlayer);
-                currentPlayer = SwitchCurrentPlayer(currentPlayer);
-                turnsElapsed++;
-            }
-
-            // Check for win
-            bool winState = CheckForWin(board);
-            
-            // Let users take turns until board is filled or someone wins
-            while(turnsElapsed < 9)
-            {
-                if(winState)
-                {
-                    currentPlayer = SwitchCurrentPlayer(currentPlayer);
-                    IncrementScore(scores, currentPlayer);
-                    Console.WriteLine($"Player {currentPlayer} wins!");
-                    // Ask if the user wants to play again
-                    return PlayAgain();
-                }
-                else
-                {
-                    NextMove(board, currentPlayer);
-                    currentPlayer = SwitchCurrentPlayer(currentPlayer);
-                    turnsElapsed++;
-                    winState = CheckForWin(board);
-                }
-
-            }
-
-            Console.WriteLine("It's a Draw!");
-            IncrementScore(scores, "Draw");
-
-            // Ask if the user wants to play again
-            return PlayAgain();
-
-       }
-        
+               
         static void Main(string[] args)
         {  
-            bool startNewGame = true;
-
+            // Create empty structure to store scores
             Dictionary<string, int> scores = new Dictionary<string, int>();
             scores.Add("X", 0);
             scores.Add("O", 0);
             scores.Add("Draw", 0);
 
+            // Run game until user quits
+            bool startNewGame = true;
             while( startNewGame )
             {
                 startNewGame = NewGame(scores);
             }
 
+            // Display scores
             Console.Clear();
             Console.WriteLine("\nX wins: {0} | O wins: {1} | Draw: {2}", scores["X"], scores["O"], scores["Draw"]);
+            
+            // Exit program
             Console.WriteLine("\nThanks for playing!");
             Environment.Exit(0);
         }
