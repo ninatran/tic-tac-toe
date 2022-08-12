@@ -29,7 +29,7 @@
             bool winState = CheckForWin(board);
             
             // Let users take turns until board is filled or someone wins
-            while(turnsElapsed < 9)
+            while(turnsElapsed < 10)
             {
                 if(winState)
                 {
@@ -38,6 +38,9 @@
                     IncrementScore(scores, currentPlayer);
                     // Prompt user to play again
                     return PlayAgain();
+                }
+                else if(!winState && turnsElapsed == 9){
+                    break;
                 }
                 else
                 {
